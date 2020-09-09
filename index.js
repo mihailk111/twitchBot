@@ -299,25 +299,26 @@ function messageHandler(data) {
         // }
 
 
-        const whoWins = coinFlip(data[0].power,data[1].power); // 1 or 2
+        const whoWins = coinFlip(data[0].power,data[1].power);
         const winnerNick =  ( whoWins.whoWins === 1 ) ? attackerNick : defenderNick ;
+        const loserNick =  ( whoWins.whoWins === 1 ) ? attackerNick : defenderNick ;
         const winnerChance = whoWins.chance * 100 ;
         
         
 
-        let winnerWinsCount = ( whoWins === 1 )? data[0].wins : data[1].wins; 
+        let winnerWinsCount = ( whoWins.whoWins === 1 )? data[0].wins : data[1].wins; 
         
-        let winnerLosesCount ;
+        let winnerLosesCount = ( whoWins.whoWins === 1) ? data[0].loses : data[1].loses ;
 
-        let loserWinsCount = ( whoWins === 2 )? data[0].wins : data[1].wins;
+        let loserWinsCount = ( whoWins.whoWins === 1 )? data[0].wins : data[1].wins; 
         
-        let loserLosesCount;
+        let loserLosesCount = ( whoWins.whoWins === 1) ? data[0].loses : data[1].loses ;
 
 
         // send to chat
         irc.send(`${attackerNick} and ${defenderNick} wrestled hard
-        ${winnerNick} WINS having ${winnerChance} chance! -> 12W ( +1 ) / 5L    
-        BabyRage <user2> -> 5W / 20L ( +1 )`);
+        ${winnerNick} WINS having ${winnerChance}% chance! -> ${winnerWinsCount}W ( +1 ) / ${winnerLosesCount}L    
+        BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount}L ( +1 )`);
         // update
 
         
