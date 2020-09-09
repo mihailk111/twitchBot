@@ -1,0 +1,16 @@
+{
+  "name": "twitch_node_bot",
+  "version": "1.0.0",
+  "description": "bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "sqlite3": "^5.0.0",
+    "tmi.js": "^1.5.0"
+  }
+}
