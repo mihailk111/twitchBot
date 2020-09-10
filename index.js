@@ -132,7 +132,6 @@ function messageHandler(data) {
 
   console.log(irc.getFormattedOutput(channel, nick, msg));
 
-// TODO db.get исправить 
 
 // MY POWER INFO
   if (msg.match(/!mypower/i)) { 
@@ -190,7 +189,7 @@ function messageHandler(data) {
   
   ===================== GO TO GYM ====================== //TODO 
     @<USER> you worked hard IN GYM, now you have 4000 ( +100 ) muscle power !!! DON'T FORGET THE SHOWER !!!! 
-  ======================================================
+  ====================================================== //TODO GYM COOL DOWN MESSAGE
 
   ======================= NOTIFICATION MESSAGE ===============================//TODO
 
@@ -380,7 +379,40 @@ function messageHandler(data) {
   }
 
 
+ 
+  if (msg.match(/!gym/)){
+    // get power 
+    // get last workout
+    // if he can workout at this time 
+    const powerAndTime = `SELECT * FROM users WHERE id = ?`; 
 
+    db.get(powerAndTime,[id],(error,data)=>{ 
+      
+      const powerIncrease = Math.round( 70 + 60*Math.random() );
+      if (data){
+        
+        
+
+        irc.send(channel,`@${nick} you worked hard IN GYM, now you have ${data.power + powerIncrease} ( +${powerIncrease} ) muscle power !!! DON'T FORGET THE SHOWER !!!!`);
+
+        //TODO UPDATE DB
+      
+
+        
+
+      
+      }else{
+
+        irc.send(channel,`@${nick} you worked hard IN GYM, now you have ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !!! DON'T FORGET THE SHOWER !!!!`);
+
+        //TODO CREATE USER
+
+      }
+
+    });
+    
+
+  }
 
 
 }

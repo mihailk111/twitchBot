@@ -13,12 +13,16 @@ const speedTest = require('./speedTest.js');
 // });
 
 
-// db.get('SELECT * FROM USERS where id = 124',[],(error,data)=>{
+// db.get('SELECT * FROM USERS where id = 124',[],(data)=>{
 
-//   console.log('data: ', data);
+//   console.log(data);
  
   
 // });
 
-
-console.log(Date.now());
+for (let index = 0; index < 100; index++) {
+  let a =Math.round( 70 + 60*Math.random() );
+  if (a === 70 || a === 130){
+    console.log(a);
+  }
+}
