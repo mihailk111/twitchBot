@@ -132,13 +132,34 @@ function messageHandler(data) {
 
   console.log(irc.getFormattedOutput(channel, nick, msg));
 
+// TODO db.get исправить 
 
-  if (msg.match(/!mypower/i)) { // MY POWER INFO
+// MY POWER INFO
+  if (msg.match(/!mypower/i)) { 
 
+    const getPowerSql = `SELECT * FROM users WHERE id = ?`;
+
+    db.get(getPowerSql,[id],(error,data)=> {
+      if(data){
+
+        irc.send(channel,`${nick} has ${data.power} POWER , ${data.wins} WINS and ${data.loses} LOSES in GYM FIGHTS`);
+        
+      }else{
+        irc.send(channel,`${nick} has 0 POWER , 0 WINS and 0 LOSES in GYM FIGHTS`);
+      
+        const createUserSql = `INSERT INTO users values (${id},0,0,0,1599746953066)`;
+        db.run(createUserSql,()=>{
+          console.log(chalk.red('[ LOG ] user created'));
+        })
+
+      }
+    })
+
+    
     const power = ''; // db request
     irc.send(channel, `@${nick} your power is ${power}`);
-    return;
 
+    return;
   }
 
   /*\
@@ -167,11 +188,11 @@ function messageHandler(data) {
   
   ===========================================
   
-  ===================== GO TO GYM ======================
+  ===================== GO TO GYM ====================== //TODO 
     @<USER> you worked hard IN GYM, now you have 4000 ( +100 ) muscle power !!! DON'T FORGET THE SHOWER !!!! 
   ======================================================
 
-  ======================= NOTIFICATION MESSAGE ===============================
+  ======================= NOTIFICATION MESSAGE ===============================//TODO
 
     DON'T FORGET YOU CAN !wrestle @<user> here to offer a fight to someone; USE !GYM to get more power; use !mypower to show your muscular body to chat 
 
@@ -257,7 +278,7 @@ function messageHandler(data) {
         db.get(getAcceptedUser, [id], (error, data) => {
 
           if (data) {
-            fight(attackerId, id,attackerNick,nick);
+            fight(attackerId, id, attackerNick, nick);
 
           } else {
             //IF USER WHO ACCEPTS NOT EXIST 
@@ -266,8 +287,8 @@ function messageHandler(data) {
             const createUserSql = `INSERT INTO users VALUES(${id},0,0,${defaultGymTime})`;
             db.run(createUserSql, (error) => {
               //USER CREATED 
-
-              fight(attackerId, id,attackerNick,nick);
+              console.log(chalk.red('[ LOG ] user created'));
+              fight(attackerId, id, attackerNick, nick);
 
 
             })
@@ -276,52 +297,59 @@ function messageHandler(data) {
 
 
         })
-        // fight 
-        // update db
-        // send to chat  
-
 
         fightRequests.shift();
         return;
       }
     })
+
     function fight(attackerId, defenderId, attackerNick, defenderNick) {
       bothUsersSql = `SELECT * FROM USERS WHERE id = ? OR id = ?`;
 
-      db.all(bothUsersSql, [attackerId, defenderId], (error, data) => { 
+      db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
 
-        // data:  {
-        //   id: 124,
-        //   power: 12354,
-        //   wins: 123512,
-        //   loses: 12365,
-        //   lastgymtime: 12351235
-        // }
+        const whoWins = coinFlip(data[0].power, data[1].power);
 
+        // GET VARIABLES 
+        const winnerNick = (whoWins.whoWins === 1) ? attackerNick : defenderNick;
 
-        const whoWins = coinFlip(data[0].power,data[1].power);
-        const winnerNick =  ( whoWins.whoWins === 1 ) ? attackerNick : defenderNick ;
-        const loserNick =  ( whoWins.whoWins === 1 ) ? attackerNick : defenderNick ;
-        const winnerChance = whoWins.chance * 100 ;
-        
-        
+        const loserNick = (whoWins.whoWins === 2) ? attackerNick : defenderNick;
 
-        let winnerWinsCount = ( whoWins.whoWins === 1 )? data[0].wins : data[1].wins; 
-        
-        let winnerLosesCount = ( whoWins.whoWins === 1) ? data[0].loses : data[1].loses ;
-
-        let loserWinsCount = ( whoWins.whoWins === 1 )? data[0].wins : data[1].wins; 
-        
-        let loserLosesCount = ( whoWins.whoWins === 1) ? data[0].loses : data[1].loses ;
+        const winnerChance = whoWins.chance * 100;
 
 
-        // send to chat
-        irc.send(`${attackerNick} and ${defenderNick} wrestled hard
-        ${winnerNick} WINS having ${winnerChance}% chance! -> ${winnerWinsCount}W ( +1 ) / ${winnerLosesCount}L    
-        BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount}L ( +1 )`);
-        // update
 
-        
+
+        let winnerWinsCount = (whoWins.whoWins === 1) ? data[0].wins : data[1].wins;
+
+        let winnerLosesCount = (whoWins.whoWins === 1) ? data[0].loses : data[1].loses;
+
+        let loserWinsCount = (whoWins.whoWins === 2) ? data[0].wins : data[1].wins;
+
+        let loserLosesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
+
+
+        // SEND TO CHAT 
+        irc.send(channel,`${attackerNick} and ${defenderNick} wrestled hard
+        ${winnerNick} WINS having ${winnerChance}% chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L    
+        BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount+1}L ( +1 )`);
+
+        //  UPDATE DB
+
+        const winnerId = (whoWins.whoWins === 1) ? attackerId : defenderId;
+        const loserId = (whoWins.whoWins === 2) ? attackerId : defenderId;
+
+        const updateWinnerSql = `UPDATE users SET wins = ${winnerWinsCount+1} WHERE id = ${winnerId}`;
+        const updateLoserSql = `UPDATE users SET loses = ${loserLosesCount+1} WHERE id = ${loserId}`;
+
+        db.run(updateWinnerSql, () => {
+          console.log(chalk.red('[LOG] : winner stat updated'));
+        })
+
+        db.run(updateLoserSql, () => {
+          console.log(chalk.red('[LOG] : loser stat updated'));
+        })
+
       })
 
     }
@@ -377,11 +405,7 @@ socket.on('connect', () => {
 
     }
     socket.write(`CAP REQ :twitch.tv/tags twitch.tv/commands\r\n`);
-    setTimeout(() => {
-      irc.send('rxnexus', `/NAMES`);
-    }, 5000);
-
-
+  
   });
 
 

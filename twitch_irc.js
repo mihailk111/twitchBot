@@ -68,8 +68,10 @@ class twitchIrc {
 
     }
     send(channel, msg) {
+        const message = `PRIVMSG #${channel} :${msg}\r\n`;
+        this.socket.write(message);
 
-        this.socket.write(`PRIVMSG #${channel} :${msg}\r\n`);
+        console.log(chalk.red('[ BOT-SAYS ] :' + message));
     }
 
     pong() {
