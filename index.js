@@ -148,7 +148,7 @@ function messageHandler(data) {
 
   console.log(irc.getFormattedOutput(channel, nick, msg));
 
-
+//erhwerhwsrh
   // MY POWER INFO
   if (msg.match(/!mypower/i)) {
 
