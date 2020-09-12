@@ -6,7 +6,7 @@ const log = console.log;
 const childProcess = require('child_process');
 const speedTest = require('./speedTest.js');
 
-
+//1
 const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
   console.log("DB -> OK");
 });
@@ -176,44 +176,6 @@ function messageHandler(data) {
 
     return;
   }
-
-  /*\
-  ======================= FIGHT OFFER ===================
-  
-  @<user1241234> gymbot1 ( 141 power ) OFFERED you TO FIGHT !
- !accept TO FIGHT BACK OR
-  !run TO ESCAPE THE BULLY
-  
-  ===========================================
-
-
-
-
-  ================ ACCEPT ===========================
-  <user1> and <another_user> wrestled hard
-  <user1> WINS having 40% chance! -> 12W ( +1 ) / 5L    
-  BabyRage <user2> -> 5W / 20L ( +1 )
-
-  ===========================================
-
-
-  ===================== !MYPOWER ======================
-  
-  YOUR POWER IS 1100 [just a SLAVE,BOSS OF THE GYM,DUNGEON MASTER,]
-  
-  ===========================================
-  
-  ===================== GO TO GYM ====================== 
-    @<USER> you worked hard IN GYM, now you have 4000 ( +100 ) muscle power !!! DON'T FORGET THE SHOWER !!!! 
-  ======================================================  COOL DOWN MESSAGE
-
-  ======================= NOTIFICATION MESSAGE ===============================
-
-    DON'T FORGET YOU CAN !wrestle @<user> here to offer a fight to someone; USE !GYM to get more power; use !mypower to show your muscular body to chat 
-
-  ======================================================
-
-  */
 
   // WRESTLE COMAND 
   if (msg.match(/!wrestle/i)) {
