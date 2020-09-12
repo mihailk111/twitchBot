@@ -140,7 +140,7 @@ function messageHandler(data) {
 
       return;
     }
-    
+
     console.log(chalk.inverse(data));
 
 
@@ -244,14 +244,14 @@ function messageHandler(data) {
 
         const power = data.power;
 
-        irc.send(channel, `@${defender}, ${nick} ( ${power} POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run TO ESCAPE THE BULLY`);
+        irc.send(channel, `@${defender}, ${nick} ( ${power} POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run to try to escape`);
         //IF ATTACKER NOT EXIST CREATE HIM
       } else {
 
-        const defaultGymTime = Date.now() - 30 * 60 * 1000;
-        const createUserSql = `INSERT INTO users VALUES(${id},0,0,${defaultGymTime})`;
+        const defaultGymTime = 0;
+        const createUserSql = `INSERT INTO users VALUES(${id},0,0,0,${defaultGymTime})`;
 
-        irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run TO ESCAPE THE BULLY`);
+        irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run try TO ESCAPE `);
 
         db.run(createUserSql, (error) => {
           if (!error) {
@@ -312,7 +312,7 @@ function messageHandler(data) {
 
         })
 
-        fightRequests.shift();
+        fightRequests.splice(index,1);
         return;
       }
     })
@@ -367,6 +367,22 @@ function messageHandler(data) {
 
     }
 
+    return;
+  }
+
+  if (msg.includes('!run')){
+    
+    fightRequests.forEach((offer,index)=>{
+      if (offer.defenderNick === nick){
+
+        irc.send(channel,`${nick} runs away scared of ${offer.attackerNick} body`)
+
+        fightRequests.splice(index,1);
+        return;
+      }
+    })
+
+   
     return;
   }
 
@@ -452,8 +468,10 @@ function messageHandler(data) {
 
     });
 
-
+    return;
   }
+
+
 
 
 }
