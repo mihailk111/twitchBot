@@ -28,6 +28,8 @@ const channels = [ //CHANNELS
   'rxnexus'
 
 ]
+const notificationsChannel = '';
+
 const fightRequests = [];
 
 const socket = new net.Socket();
@@ -38,6 +40,19 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 speedTest.start(socket); // SPEED TEST TO CONSOLE
 
 const irc = new ircClass('oauth:orcp6gjmq3xo63exwflhn2safhoyvv', "gymbot1", socket); //IRC CLASS
+
+
+const period = 45 * 60 * 1000; // 30 MINS
+
+const notifications = setInterval(()=>{
+  irc.send(notificationsChannel,`
+  
+  DON'T FORGET YOU CAN !wrestle @<user> here to offer a fight to someone; USE !gogym to get more power; use !mypower to show your muscular body to chat
+
+  `)
+},period);
+
+
 
 
 let buffer = '';
@@ -85,31 +100,10 @@ socket.on('data', (data) => {
 
 function messageHandler(data) {
 
-  if (/^PING/.test(data)) { //PING PONG answer
-    irc.pong()
-    return;
-  }
-
-  if (data.match(/CLEARCHAT/)) { //CLEARCHAT msg
-    console.log(chalk.inverse(data));
-    return;
-  }
-
-  if (data.match(/CLEARMSG/)) { //CLEARMSG msg
-    console.log(chalk.inverse(data));
-
-    return;
-  }
-  if (data.match(/USERNOTICE/)) { //USERNOTICE MSG
-    console.log(chalk.inverse(data));
-
-    return;
-  }
-
-
   speedTest.message(); // SPEED TEST  
 
   // PRIVMSG DATA
+
   let channel;
   let nick;
   let msg;
@@ -125,36 +119,58 @@ function messageHandler(data) {
     id = irc.getId(data);
 
   } catch (error) {
-    console.log(data);
-    return;
+
+    if (/^PING/.test(data)) { //PING PONG answer
+      irc.pong()
+      return;
+    }
+
+    if (data.match(/CLEARCHAT/)) { //CLEARCHAT msg
+      console.log(chalk.inverse(data));
+      return;
+    }
+
+    if (data.match(/CLEARMSG/)) { //CLEARMSG msg
+      console.log(chalk.inverse(data));
+
+      return;
+    }
+    if (data.match(/USERNOTICE/)) { //USERNOTICE MSG
+      console.log(chalk.inverse(data));
+
+      return;
+    }
+    
+    console.log(chalk.inverse(data));
+
 
   }
 
   console.log(irc.getFormattedOutput(channel, nick, msg));
 
 
-// MY POWER INFO
-  if (msg.match(/!mypower/i)) { 
+  // MY POWER INFO
+  if (msg.match(/!mypower/i)) {
 
     const getPowerSql = `SELECT * FROM users WHERE id = ?`;
 
-    db.get(getPowerSql,[id],(error,data)=> {
-      if(data){
+    db.get(getPowerSql, [id], (error, data) => {
+      if (data) {
 
-        irc.send(channel,`${nick} has ${data.power} POWER , ${data.wins} WINS and ${data.loses} LOSES in GYM FIGHTS`);
-        
-      }else{
-        irc.send(channel,`${nick} has 0 POWER , 0 WINS and 0 LOSES in GYM FIGHTS`);
-      
+        irc.send(channel, `${nick} has ${data.power} POWER , ${data.wins} WINS and ${data.loses} LOSES in GYM FIGHTS`);
+
+      } else {
+        irc.send(channel, `${nick} has 0 POWER , 0 WINS and 0 LOSES in GYM FIGHTS`);
+
         const createUserSql = `INSERT INTO users values (${id},0,0,0,1599746953066)`;
-        db.run(createUserSql,()=>{
+        db.run(createUserSql, () => {
           console.log(chalk.red('[ LOG ] user created'));
         })
 
       }
     })
 
-    
+
     const power = ''; // db request
     irc.send(channel, `@${nick} your power is ${power}`);
 
@@ -187,11 +203,11 @@ function messageHandler(data) {
   
   ===========================================
   
-  ===================== GO TO GYM ====================== //TODO 
+  ===================== GO TO GYM ====================== 
     @<USER> you worked hard IN GYM, now you have 4000 ( +100 ) muscle power !!! DON'T FORGET THE SHOWER !!!! 
-  ====================================================== //TODO GYM COOL DOWN MESSAGE
+  ======================================================  COOL DOWN MESSAGE
 
-  ======================= NOTIFICATION MESSAGE ===============================//TODO
+  ======================= NOTIFICATION MESSAGE ===============================
 
     DON'T FORGET YOU CAN !wrestle @<user> here to offer a fight to someone; USE !GYM to get more power; use !mypower to show your muscular body to chat 
 
@@ -278,7 +294,6 @@ function messageHandler(data) {
 
           if (data) {
             fight(attackerId, id, attackerNick, nick);
-
           } else {
             //IF USER WHO ACCEPTS NOT EXIST 
             //CREATE USER
@@ -318,7 +333,6 @@ function messageHandler(data) {
 
 
 
-
         let winnerWinsCount = (whoWins.whoWins === 1) ? data[0].wins : data[1].wins;
 
         let winnerLosesCount = (whoWins.whoWins === 1) ? data[0].loses : data[1].loses;
@@ -329,7 +343,7 @@ function messageHandler(data) {
 
 
         // SEND TO CHAT 
-        irc.send(channel,`${attackerNick} and ${defenderNick} wrestled hard
+        irc.send(channel, `${attackerNick} and ${defenderNick} wrestled hard
         ${winnerNick} WINS having ${winnerChance}% chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L    
         BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount+1}L ( +1 )`);
 
@@ -379,44 +393,70 @@ function messageHandler(data) {
   }
 
 
- 
-  if (msg.match(/!gym/)){
+
+  if (msg.match(/!gogym/)) {
+
     // get power 
     // get last workout
     // if he can workout at this time 
-    const powerAndTime = `SELECT * FROM users WHERE id = ?`; 
 
-    db.get(powerAndTime,[id],(error,data)=>{ 
-      
-      const powerIncrease = Math.round( 70 + 60*Math.random() );
-      if (data){
+    const gymRestTime = 30 * 60 * 1000; //ms
+    const powerAndTime = `SELECT * FROM users WHERE id = ?`;
+
+
+    db.get(powerAndTime, [id], (error, data) => {
+
+      const powerIncrease = Math.round(70 + 60 * Math.random()); // 70  - 130 
+
+      if (data) {
+        // IF USER EXISTS
+
+
+        const increasedPower = data.power + powerIncrease;
+        const timeDifference = Date.now() - data.lastgymtime;
+
+        // IF PLAYER RESTED 30 MINS
+        if (timeDifference > gymRestTime) {
+
+          irc.send(channel, `@${nick}  worked hard IN GYM, now you have ${increasedPower} ( +${powerIncrease} ) muscle power ! DON'T FORGET THE SHOWER !`);
+
+          const powerUpdate = `UPDATE users SET power = ${increasedPower} , lastgymtime = ${Date.now()} WHERE id = ${data.id}`;
+
+          db.run(powerUpdate, () => {
+            console.log(chalk.red('[ LOG ] user power updated '));
+          })
+
+        } else {
+          // PLAYER TIRED
+          const timeLeft = gymRestTime - timeDifference;
+
+          irc.send(channel, `@${nick}, body , rest at least ${timeLeft/1000/60} minutes more`);
+
+        }
+
+
+
+
+      } else {
+
+        //NO SUCH PLAYER
+        irc.send(channel, `@${nick} you worked hard IN GYM, now you have ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
         
-        
+        const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()})`;
 
-        irc.send(channel,`@${nick} you worked hard IN GYM, now you have ${data.power + powerIncrease} ( +${powerIncrease} ) muscle power !!! DON'T FORGET THE SHOWER !!!!`);
-
-        //TODO UPDATE DB
-      
-
-        
-
-      
-      }else{
-
-        irc.send(channel,`@${nick} you worked hard IN GYM, now you have ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !!! DON'T FORGET THE SHOWER !!!!`);
-
-        //TODO CREATE USER
+        db.run(createUser,()=>{
+          console.log(chalk.red('[ LOG ] user created '));
+        })
 
       }
 
     });
-    
+
 
   }
 
 
 }
-
 
 
 
@@ -437,7 +477,7 @@ socket.on('connect', () => {
 
     }
     socket.write(`CAP REQ :twitch.tv/tags twitch.tv/commands\r\n`);
-  
+
   });
 
 
