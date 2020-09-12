@@ -10,7 +10,7 @@ const speedTest = require('./speedTest.js');
 const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
   console.log("DB -> OK");
 });
-
+//ergwergwegwer`
 
 
 const channels = [ //CHANNELS 

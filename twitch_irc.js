@@ -26,7 +26,7 @@ class twitchIrc {
 
 
     }
-    
+    //rghwerhw
     getDisplayName(data) {
         //1 no display nme
         //2 display name = ??
