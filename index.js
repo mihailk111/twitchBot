@@ -171,9 +171,6 @@ function messageHandler(data) {
     })
 
 
-    const power = ''; // db request
-    irc.send(channel, `@${nick} your power is ${power}`);
-
     return;
   }
 
@@ -245,8 +242,8 @@ function messageHandler(data) {
         //   'defenderNick': defender,
         // };
 
-        let attackerNick = offer.attackerNick;
-        let attackerId = offer.attackerId;
+        const attackerNick = offer.attackerNick;
+        const attackerId = offer.attackerId;
 
         // request users powers
 
@@ -295,13 +292,13 @@ function messageHandler(data) {
 
 
 
-        let winnerWinsCount = (whoWins.whoWins === 1) ? data[0].wins : data[1].wins;
+        const winnerWinsCount = (whoWins.whoWins === 1) ? data[0].wins : data[1].wins;
 
-        let winnerLosesCount = (whoWins.whoWins === 1) ? data[0].loses : data[1].loses;
+        const winnerLosesCount = (whoWins.whoWins === 1) ? data[0].loses : data[1].loses;
 
-        let loserWinsCount = (whoWins.whoWins === 2) ? data[0].wins : data[1].wins;
+        const loserWinsCount = (whoWins.whoWins === 2) ? data[0].wins : data[1].wins;
 
-        let loserLosesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
+        const loserLosesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
 
 
         // SEND TO CHAT 
@@ -350,11 +347,11 @@ function messageHandler(data) {
 
   function coinFlip(power1, power2) { // takes 2 powers gives winner
 
-    let sum = power1 + power2;
-    let user1chance = power1 / sum;
-    let user2chance = power2 / sum;
+    const sum = power1 + power2;
+    const user1chance = power1 / sum;
+    const user2chance = power2 / sum;
 
-    let coinFlip = Math.random();
+    const coinFlip = Math.random();
 
     if (coinFlip < user1chance) {
       return {

@@ -3,11 +3,11 @@ const {
 } = require('child_process');
 
 
-exec('git add *', (err, stdout, stderr) => {
+exec('git add *', () => {
 
-    exec('git commit -m "just a commit" ', (err, stdout, stderr) => {
+    exec('git commit -m "just a commit" ', () => {
 
-        exec('git push', (err, stdout, stderr) => {
+        exec('git push', () => {
 
         });
     });
