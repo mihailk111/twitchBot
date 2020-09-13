@@ -106,14 +106,12 @@ function messageHandler(data) {
   let nick;
   let msg;
   let id;
-  let realName;
 
   try { //MESSAGE DATA
 
     channel = irc.getChannel(data);
     nick = irc.getDisplayName(data);
     msg = irc.getMsg(data).trim();
-    realName = irc.getReal(data);
     id = irc.getId(data);
 
   } catch (error) {
@@ -160,7 +158,7 @@ console.log(data);
       } else {
         irc.send(channel, `${nick} has 0 power , 0 wins and 0 losses in GYM FIGHTS`);
 
-        const createUserSql = `INSERT INTO users values (${id},1,0,0,0)`;
+        const createUserSql = `INSERT INTO users values (${id},1,0,0,0,${nick})`;
         db.run(createUserSql, () => {
           console.log(chalk.red('[ LOG ] user created'));
         })
@@ -206,7 +204,7 @@ console.log(data);
       } else {
 
         const defaultGymTime = 0;
-        const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime})`;
+        const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime},${nick} )`;
 
         irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT !accept -> to fight back !run -> try to escape`);
 
@@ -255,7 +253,7 @@ console.log(data);
             //IF USER WHO ACCEPTS NOT EXIST 
             //CREATE USER
             const defaultGymTime = 0;
-            const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,0)`;
+            const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,0,${nick})`;
 
             db.run(createUserSql, (error) => {
               //USER CREATED 
@@ -278,12 +276,17 @@ console.log(data);
     function coinFlip(power1, power2) { // takes 2 powers gives winner
 
       const sum = power1 + power2;
+
       console.log('POWER SUM -> '+sum);
+
       const user1chance = power1 / sum;
+
       console.log('user1chance -> '+user1chance);
   
       const user2chance = power2 / sum;
+
       console.log('user1chance -> '+user2chance);
+
       const coinFlip = Math.random();
   
       if (coinFlip < user1chance) {
@@ -301,7 +304,8 @@ console.log(data);
     }
 
     function fight(attackerId, defenderId, attackerNick, defenderNick) {
-      bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
+
+      let bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
 
       db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
 
@@ -419,7 +423,7 @@ console.log(data);
         //NO SUCH PLAYER
         irc.send(channel, `@${nick} you worked hard IN GYM, ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
         
-        const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()})`;
+        const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()}, ${nick})`;
 
         db.run(createUser,()=>{
           console.log(chalk.red('[ LOG ] user created '));
@@ -433,11 +437,9 @@ console.log(data);
   }
 
 
-
-
 }
 
-
+//TODO SPACE IN COMANDS
 
 
 

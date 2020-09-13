@@ -1,4 +1,3 @@
-
 const net = require('net');
 const ircClass = require('./twitch_irc');
 const sqlite3 = require('sqlite3').verbose();
@@ -12,31 +11,15 @@ const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
   console.log("DB -> OK");
 });
 
+let nick = "gergergwerger";
+let id = 1212121212121;
 
-function coinFlip(power1, power2) { // takes 2 powers gives winner
+const createUserSql = `insert into users
+(id,power,wins,loses,lastgymtime,nick)
+VALUES ( ${id},1,1,1,1,${nick})`;
 
-  const sum = power1 + power2;
-  console.log('POWER SUM -> '+sum);
-  const user1chance = power1 / sum;
-  console.log('user1chance -> '+user1chance);
-
-  const user2chance = power2 / sum;
-  console.log('user1chance -> '+user2chance);
-  const coinFlip = Math.random();
-
-  if (coinFlip < user1chance) {
-    return {
-      'whoWins': 1,
-      'chance': user1chance
-    };
-  } else {
-    return {
-      'whoWins': 2,
-      'chance': user2chance
-    };
-  }
-
-}
-
-console.log(coinFlip(100,1));
-
+db.run(createUserSql, (error) => {
+  if (error) console.log(error);
+  console.log(chalk.red('[ LOG ] user created'));
+})
+//FIXME CANNOT INSERT INTO TABLE FOR SOME REASON 
