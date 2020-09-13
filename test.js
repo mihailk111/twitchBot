@@ -13,29 +13,30 @@ const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
 });
 
 
-// db.get('SELECT * FROM USERS where id = 124',[],(data)=>{
+function coinFlip(power1, power2) { // takes 2 powers gives winner
 
-//   console.log(data);
- 
-  
-// });
+  const sum = power1 + power2;
+  console.log('POWER SUM -> '+sum);
+  const user1chance = power1 / sum;
+  console.log('user1chance -> '+user1chance);
 
-// for (let index = 0; index < 100; index++) {
-//   let a =Math.round( 70 + 60*Math.random() );
-//   if (a === 70 || a === 130){
-//     console.log(a);
-//   }
-// // }
-// let a =1111100000;
-// let b= 2;
+  const user2chance = power2 / sum;
+  console.log('user1chance -> '+user2chance);
+  const coinFlip = Math.random();
 
-// const powerUpdate = `UPDATE users SET power = ${a}, lastgymtime = ${Date.now()} WHERE id = ${b}` ;
+  if (coinFlip < user1chance) {
+    return {
+      'whoWins': 1,
+      'chance': user1chance
+    };
+  } else {
+    return {
+      'whoWins': 2,
+      'chance': user2chance
+    };
+  }
 
-// db.run(powerUpdate,()=>{
-//   console.log(chalk.red('[ LOG ] user power updated'));
-// })
+}
 
+console.log(coinFlip(100,1));
 
-const a = setInterval(() => {
-  console.log('1sec');
-}, 1000);

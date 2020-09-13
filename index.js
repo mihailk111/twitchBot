@@ -21,14 +21,14 @@ const channels = [ //CHANNELS
   // 'dota2ruhub',
   // 'singsing',
   // 'icebergdoto',
-  // 'silvername',
-  'just_ns',
-  "dota2mc_ru",
-  'daxak',
-  'rxnexus'
-
+  // 'silvername', 
+  // 'just_ns',
+  // "dota2mc_ru",
+  // 'daxak',
+  // 'rxnexus'
+  'azazin_kreet'
 ]
-const notificationsChannel = '';
+const notificationsChannel = 'azazin_kreet';
 
 const fightRequests = [];
 
@@ -37,19 +37,17 @@ socket.setEncoding('utf8');
 socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 
 
-speedTest.start(socket); // SPEED TEST TO CONSOLE
+// speedTest.start(socket); // SPEED TEST TO CONSOLE
 
 const irc = new ircClass('oauth:orcp6gjmq3xo63exwflhn2safhoyvv', "gymbot1", socket); //IRC CLASS
 
 
-const period = 45 * 60 * 1000; // 30 MINS
+const period = 30 * 60 * 1000; // 30 MINS 
+
+
 
 const notifications = setInterval(()=>{
-  irc.send(notificationsChannel,`
-  
-  DON'T FORGET YOU CAN !wrestle @<user> here to offer a fight to someone; USE !gogym to get more power; use !mypower to show your muscular body to chat
-
-  `)
+  irc.send(notificationsChannel,`EVERYONE, YOU CAN -> !wrestle @<user> to offer a fight to someone; USE -> !gogym to WORKOUT; USE -> !mypower to show your muscular body to chat`)
 },period);
 
 
@@ -143,10 +141,10 @@ function messageHandler(data) {
 
     console.log(chalk.inverse(data));
 
-
+    return;
   }
-
-  console.log(irc.getFormattedOutput(channel, nick, msg));
+console.log(data);
+ 
 
 //erhwerhwsrh
   // MY POWER INFO
@@ -162,7 +160,7 @@ function messageHandler(data) {
       } else {
         irc.send(channel, `${nick} has 0 POWER , 0 WINS and 0 LOSES in GYM FIGHTS`);
 
-        const createUserSql = `INSERT INTO users values (${id},0,0,0,1599746953066)`;
+        const createUserSql = `INSERT INTO users values (${id},1,0,0,0)`;
         db.run(createUserSql, () => {
           console.log(chalk.red('[ LOG ] user created'));
         })
@@ -175,7 +173,7 @@ function messageHandler(data) {
   }
 
   // WRESTLE COMAND 
-  if (msg.match(/!wrestle/i)) {
+  if (msg.match(/! ?wrestle/i)) {
 
     let defender = '';
 
@@ -208,7 +206,7 @@ function messageHandler(data) {
       } else {
 
         const defaultGymTime = 0;
-        const createUserSql = `INSERT INTO users VALUES(${id},0,0,0,${defaultGymTime})`;
+        const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime})`;
 
         irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run try TO ESCAPE `);
 
@@ -256,8 +254,9 @@ function messageHandler(data) {
           } else {
             //IF USER WHO ACCEPTS NOT EXIST 
             //CREATE USER
-            const defaultGymTime = Date.now() - 30 * 60 * 1000;
-            const createUserSql = `INSERT INTO users VALUES(${id},0,0,${defaultGymTime})`;
+            const defaultGymTime = 0;
+            const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,0)`;
+
             db.run(createUserSql, (error) => {
               //USER CREATED 
               console.log(chalk.red('[ LOG ] user created'));
@@ -276,8 +275,33 @@ function messageHandler(data) {
       }
     })
 
+    function coinFlip(power1, power2) { // takes 2 powers gives winner
+
+      const sum = power1 + power2;
+      console.log('POWER SUM -> '+sum);
+      const user1chance = power1 / sum;
+      console.log('user1chance -> '+user1chance);
+  
+      const user2chance = power2 / sum;
+      console.log('user1chance -> '+user2chance);
+      const coinFlip = Math.random();
+  
+      if (coinFlip < user1chance) {
+        return {
+          'whoWins': 1,
+          'chance': user1chance
+        };
+      } else {
+        return {
+          'whoWins': 2,
+          'chance': user2chance
+        };
+      }
+  
+    }
+
     function fight(attackerId, defenderId, attackerNick, defenderNick) {
-      bothUsersSql = `SELECT * FROM USERS WHERE id = ? OR id = ?`;
+      bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
 
       db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
 
@@ -302,9 +326,7 @@ function messageHandler(data) {
 
 
         // SEND TO CHAT 
-        irc.send(channel, `${attackerNick} and ${defenderNick} wrestled hard
-        ${winnerNick} WINS having ${winnerChance}% chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L    
-        BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount+1}L ( +1 )`);
+        irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount+1}L ( +1 )`);
 
         //  UPDATE DB
 
@@ -345,27 +367,7 @@ function messageHandler(data) {
     return;
   }
 
-  function coinFlip(power1, power2) { // takes 2 powers gives winner
-
-    const sum = power1 + power2;
-    const user1chance = power1 / sum;
-    const user2chance = power2 / sum;
-
-    const coinFlip = Math.random();
-
-    if (coinFlip < user1chance) {
-      return {
-        'whoWins': 1,
-        'chance': user1chance
-      };
-    } else {
-      return {
-        'whoWins': 2,
-        'chance': user2chance
-      };
-    }
-
-  }
+ 
 
 
 
@@ -405,7 +407,7 @@ function messageHandler(data) {
           // PLAYER TIRED
           const timeLeft = gymRestTime - timeDifference;
 
-          irc.send(channel, `@${nick}, body , rest at least ${timeLeft/1000/60} minutes more`);
+          irc.send(channel, `@${nick}, buddy , rest at least ${Math.floor( timeLeft/1000/60) } minutes more`);
 
         }
 
