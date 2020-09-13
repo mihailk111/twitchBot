@@ -155,10 +155,10 @@ console.log(data);
     db.get(getPowerSql, [id], (error, data) => {
       if (data) {
 
-        irc.send(channel, `${nick} has ${data.power} POWER , ${data.wins} WINS and ${data.loses} LOSES in GYM FIGHTS`);
+        irc.send(channel, `${nick} has ${data.power} power , ${data.wins} wins and ${data.loses} losses in GYM FIGHTS`);
 
       } else {
-        irc.send(channel, `${nick} has 0 POWER , 0 WINS and 0 LOSES in GYM FIGHTS`);
+        irc.send(channel, `${nick} has 0 power , 0 wins and 0 losses in GYM FIGHTS`);
 
         const createUserSql = `INSERT INTO users values (${id},1,0,0,0)`;
         db.run(createUserSql, () => {
@@ -186,7 +186,7 @@ console.log(data);
       irc.send(channel, `@${nick}, you should use !wrestle @<nick>`);
     }
 
-    fightRequests.push({
+    fightRequests.unshift({
       'attackerNick': nick,
       'attackerId': id,
       'defenderNick': defender,
@@ -201,14 +201,14 @@ console.log(data);
 
         const power = data.power;
 
-        irc.send(channel, `@${defender}, ${nick} ( ${power} POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run to try to escape`);
+        irc.send(channel, `@${defender}, ${nick} ( ${power} POWER ) OFFERED YOU TO FIGHT !accept -> to fight back !run -> try to escape`);
         //IF ATTACKER NOT EXIST CREATE HIM
       } else {
 
         const defaultGymTime = 0;
         const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime})`;
 
-        irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT ! USE !accept TO FIGHT BACK or !run try TO ESCAPE `);
+        irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT !accept -> to fight back !run -> try to escape`);
 
         db.run(createUserSql, (error) => {
           if (!error) {
@@ -322,11 +322,11 @@ console.log(data);
 
         const loserWinsCount = (whoWins.whoWins === 2) ? data[0].wins : data[1].wins;
 
-        const loserLosesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
+        const loserLossesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
 
 
         // SEND TO CHAT 
-        irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLosesCount+1}L ( +1 )`);
+        irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
 
         //  UPDATE DB
 
@@ -334,7 +334,7 @@ console.log(data);
         const loserId = (whoWins.whoWins === 2) ? attackerId : defenderId;
 
         const updateWinnerSql = `UPDATE users SET wins = ${winnerWinsCount+1} WHERE id = ${winnerId}`;
-        const updateLoserSql = `UPDATE users SET loses = ${loserLosesCount+1} WHERE id = ${loserId}`;
+        const updateLoserSql = `UPDATE users SET loses = ${loserLossesCount+1} WHERE id = ${loserId}`;
 
         db.run(updateWinnerSql, () => {
           console.log(chalk.red('[LOG] : winner stat updated'));
@@ -356,7 +356,7 @@ console.log(data);
     fightRequests.forEach((offer,index)=>{
       if (offer.defenderNick === nick){
 
-        irc.send(channel,`${nick} runs away scared of ${offer.attackerNick} body`)
+        irc.send(channel,`BibleThump ${nick} runs away scared of ${offer.attackerNick} body`)
 
         fightRequests.splice(index,1);
         return;
@@ -395,7 +395,7 @@ console.log(data);
         // IF PLAYER RESTED 30 MINS
         if (timeDifference > gymRestTime) {
 
-          irc.send(channel, `@${nick}  worked hard IN GYM, now you have ${increasedPower} ( +${powerIncrease} ) muscle power ! DON'T FORGET THE SHOWER !`);
+          irc.send(channel, `@${nick}  worked hard in GYM, now you have ${increasedPower} ( +${powerIncrease} ) muscle power ! `);
 
           const powerUpdate = `UPDATE users SET power = ${increasedPower} , lastgymtime = ${Date.now()} WHERE id = ${data.id}`;
 
@@ -417,7 +417,7 @@ console.log(data);
       } else {
 
         //NO SUCH PLAYER
-        irc.send(channel, `@${nick} you worked hard IN GYM, now you have ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
+        irc.send(channel, `@${nick} you worked hard IN GYM, ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
         
         const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()})`;
 
