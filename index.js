@@ -158,7 +158,7 @@ console.log(data);
       } else {
         irc.send(channel, `${nick} has 0 power , 0 wins and 0 losses in GYM FIGHTS`);
 
-        const createUserSql = `INSERT INTO users values (${id},1,0,0,0,${nick})`;
+        const createUserSql = `INSERT INTO users values (${id},1,0,0,0,"${nick}")`;
         db.run(createUserSql, () => {
           console.log(chalk.red('[ LOG ] user created'));
         })
@@ -204,7 +204,7 @@ console.log(data);
       } else {
 
         const defaultGymTime = 0;
-        const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime},${nick} )`;
+        const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,${defaultGymTime},"${nick}" )`;
 
         irc.send(channel, `@${defender}, ${nick} ( 0 POWER ) OFFERED YOU TO FIGHT !accept -> to fight back !run -> try to escape`);
 
@@ -253,7 +253,7 @@ console.log(data);
             //IF USER WHO ACCEPTS NOT EXIST 
             //CREATE USER
             const defaultGymTime = 0;
-            const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,0,${nick})`;
+            const createUserSql = `INSERT INTO users VALUES(${id},1,0,0,0,"${nick}")`;
 
             db.run(createUserSql, (error) => {
               //USER CREATED 
@@ -331,6 +331,12 @@ console.log(data);
 
         // SEND TO CHAT 
         irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
+
+// FIXME qwrcrq23c2 and 123f1123 WRESTLED PorscheWIN
+//qwrcrq23c2 WINS having 99% win-chance! -> 1W ( +1 ) / undefinedL BabyRage
+//123f1123 -> 0W / NaNL ( +1 )
+
+//TODO ATTACKER ALWAYS WINS
 
         //  UPDATE DB
 
@@ -423,7 +429,7 @@ console.log(data);
         //NO SUCH PLAYER
         irc.send(channel, `@${nick} you worked hard IN GYM, ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
         
-        const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()}, ${nick})`;
+        const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()}, "${nick}")`;
 
         db.run(createUser,()=>{
           console.log(chalk.red('[ LOG ] user created '));
