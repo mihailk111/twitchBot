@@ -6,7 +6,7 @@ const log = console.log;
 const childProcess = require('child_process');
 const speedTest = require('./speedTest.js');
 
-//1
+
 const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
   console.log("DB -> OK");
 });
@@ -269,7 +269,7 @@ console.log(data);
         })
 
         fightRequests.splice(index,1);
-        return;
+        return; // foreach drop
       }
     })
 
@@ -305,30 +305,54 @@ console.log(data);
 
     function fight(attackerId, defenderId, attackerNick, defenderNick) {
 
-      let bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
+      const bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
 
       db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
-
-        const whoWins = coinFlip(data[0].power, data[1].power);
+		const attackerData = data[0];
+		const defenderData = data[1];
+		
+        const whoWins = coinFlip(attackerData.power, defenderData.power);
 
         // GET VARIABLES 
-        const winnerNick = (whoWins.whoWins === 1) ? attackerNick : defenderNick;
-
-        const loserNick = (whoWins.whoWins === 2) ? attackerNick : defenderNick;
-
+		//TODO REWRITE PARSERS
+		
+        const winnerNick;
+		const loserNick;
+		
+		if(whoWins.whoWins === 1){
+			winnerNick = attackerNick;
+			loserNick = defenderId;
+		}else{
+			winnerNick = defenderNick;
+			loserNick = winnerNick;
+		}
+		
+     
         const winnerChance = whoWins.chance * 100;
 
 
+        const winnerWinsCount;
+		const winnerLosesCount;
+		
+		const loserWinsCount;
+        const loserLossesCount;
+		
+		if (whoWins.whoWins === 1){
+			winnerWinsCount = attackerData.power;
+			winnerLosesCount = attackerData.loses; // TODO LOSES/ LOSSES IN DB ?
+			
+			loserWinsCount = defenderData.wins;
+			loserLossesCount = defenderData.loses;
+			
+		}else{
+			winnerWinsCount = defenderData.power;
+			winnerLosesCount = defenderData.loses; // TODO LOSES - LOSSES IN DB ?
+			
+			loserWinsCount = attackerData.wins;
+			loserLossesCount = attackerData.loses;
+		}
 
-        const winnerWinsCount = (whoWins.whoWins === 1) ? data[0].wins : data[1].wins;
-
-        const winnerLosesCount = (whoWins.whoWins === 1) ? data[0].loses : data[1].loses;
-
-        const loserWinsCount = (whoWins.whoWins === 2) ? data[0].wins : data[1].wins;
-
-        const loserLossesCount = (whoWins.whoWins === 2) ? data[0].loses : data[1].loses;
-
-
+       
         // SEND TO CHAT 
         irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
 
