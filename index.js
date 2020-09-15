@@ -20,21 +20,25 @@ const channels = [ //CHANNELS
   // "gorc",
   // 'dota2ruhub',
   // 'singsing',
-  // 'icebergdoto',
-  // 'silvername', 
-  // 'just_ns',
-  // "dota2mc_ru",
-  // 'daxak',
-  // 'rxnexus'
+  'icebergdoto',
+  'silvername', 
+  'just_ns',
+  "dota2mc_ru",
+  'daxak',
+  'rxnexus',
   'azazin_kreet'
 ]
 const notificationsChannel = 'azazin_kreet';
 
 const fightRequests = [];
 
+
+	
 const socket = new net.Socket();
 socket.setEncoding('utf8');
 socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
+
+
 
 
 // speedTest.start(socket); // SPEED TEST TO CONSOLE
@@ -141,7 +145,8 @@ function messageHandler(data) {
 
     return;
   }
-console.log(data);
+  
+console.log(irc.getFormattedOutput(channel,nick,msg));
  
 
 //erhwerhwsrh
@@ -316,8 +321,8 @@ console.log(data);
         // GET VARIABLES 
 		//TODO REWRITE PARSERS
 		
-        const winnerNick;
-		const loserNick;
+        let winnerNick;
+		let loserNick;
 		
 		if(whoWins.whoWins === 1){
 			winnerNick = attackerNick;
@@ -331,11 +336,11 @@ console.log(data);
         const winnerChance = whoWins.chance * 100;
 
 
-        const winnerWinsCount;
-		const winnerLosesCount;
+        let winnerWinsCount;
+		let winnerLosesCount;
 		
-		const loserWinsCount;
-        const loserLossesCount;
+		let loserWinsCount;
+        let loserLossesCount;
 		
 		if (whoWins.whoWins === 1){
 			winnerWinsCount = attackerData.power;
@@ -363,10 +368,18 @@ console.log(data);
 //TODO ATTACKER ALWAYS WINS
 
         //  UPDATE DB
-
-        const winnerId = (whoWins.whoWins === 1) ? attackerId : defenderId;
-        const loserId = (whoWins.whoWins === 2) ? attackerId : defenderId;
-
+		// TODO CONST -> LET
+        let winnerId ;
+        let loserId ;
+		
+		if (whoWins.whoWins === 1){
+			winnerId = attackerData.id;
+			loserId = defenderData.id;
+		}else{
+			winnerId = defenderData.id;
+			loserId = attackerData.id;
+		}
+	
         const updateWinnerSql = `UPDATE users SET wins = ${winnerWinsCount+1} WHERE id = ${winnerId}`;
         const updateLoserSql = `UPDATE users SET loses = ${loserLossesCount+1} WHERE id = ${loserId}`;
 
