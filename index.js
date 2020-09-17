@@ -53,11 +53,11 @@ const period = 1 * 60 * 1000; // 30 MINS
 
 
 const notifications = setInterval(() => {
-  irc.send(notificationsChannel, `EVERYONE, you can  - !wrestle @<user> - to offer a fight to someone - !gogym - to WORKOUT - !mypower - to show your muscular body to chat`)
+  irc.send(notificationsChannel, `EVERYONE, you can !wrestle @<user> - to offer a fight to someone !gogym - to WORKOUT !mypower - to show your muscular body to chat`)
 }, period);
 
 
-
+//TODO LADDER NOTIFICATION
 
 let buffer = '';
 
