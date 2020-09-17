@@ -48,12 +48,12 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 const irc = new ircClass('oauth:orcp6gjmq3xo63exwflhn2safhoyvv', "gymbot1", socket); //IRC CLASS
 
 
-const period = 30 * 60 * 1000; // 30 MINS 
+const period = 1 * 60 * 1000; // 30 MINS 
 
 
 
 const notifications = setInterval(() => {
-  irc.send(notificationsChannel, `EVERYONE, YOU CAN -> !wrestle @<user> to offer a fight to someone; USE -> !gogym to WORKOUT; USE -> !mypower to show your muscular body to chat`)
+  irc.send(notificationsChannel, `EVERYONE, you can  - !wrestle @<user> - to offer a fight to someone - !gogym - to WORKOUT - !mypower - to show your muscular body to chat`)
 }, period);
 
 
@@ -71,7 +71,7 @@ socket.on('data', (data) => {
     return;
   }
 
-  // IF BUFFER ISNOT EMPTY THIS DATA CONCAT TO BUFFER 
+  // IF BUFFER IS NOT EMPTY THIS DATA CONCAT TO BUFFER 
   // HANDLE BUFFER 
   // EMPTY BUFFER 
   if (buffer.length > 0) {
@@ -136,7 +136,7 @@ function messageHandler(data) {
 
   //erhwerhwsrh
   // MY POWER INFO
-  if (msg.match(/!mypower/i)) {
+  if (msg.match(/! ?mypower/i)) {
 
     const getPowerSql = `SELECT * FROM users WHERE id = ?`;
 
@@ -169,7 +169,9 @@ function messageHandler(data) {
 
       //DEFENDER NICK
       defender = msg.match(/! ?wrestle @(\w{3,})/i)['1'];
-
+      if (defender === nick){
+        return;
+      }
     } catch (error) {
       irc.send(channel, `@${nick}, you should use !wrestle @<nick>`);
     }
@@ -216,8 +218,7 @@ function messageHandler(data) {
   }
 
 
-  if (msg.match(/!accept/)) {
-
+  if (msg.match(/! ?accept/)) {
     fightRequests.forEach((offer, index) => {
       if (offer.defenderNick === nick) {
         // DO FIGHT 
@@ -302,20 +303,20 @@ function messageHandler(data) {
       db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
 
         let attackerData;
-       
-        let defenderData;
-        
 
-        data.forEach((element,index)=>{
-          if (element.id == attackerId){
+        let defenderData;
+
+
+        data.forEach((element, index) => {
+          if (element.id == attackerId) {
             attackerData = element;
-          }else if (element.id == defenderId){
+          } else if (element.id == defenderId) {
             defenderData = element;
           }
         })
         console.log(attackerData);
         console.log(defenderData);
-        
+
         console.log(data);
         const whoWins = coinFlip(attackerData.power, defenderData.power);
 
@@ -352,14 +353,14 @@ function messageHandler(data) {
 
         if (whoWins.whoWins === 1) {
           winnerWinsCount = attackerData.wins;
-          winnerLossesCount = attackerData.losses; // TODO LOSES/ LOSSES IN DB ?
+          winnerLossesCount = attackerData.losses;
 
           loserWinsCount = defenderData.wins;
           loserLossesCount = defenderData.losses;
 
         } else {
           winnerWinsCount = defenderData.wins;
-          winnerLossesCount = defenderData.losses; // TODO LOSES - LOSSES IN DB ?
+          winnerLossesCount = defenderData.losses;
 
           loserWinsCount = attackerData.wins;
           loserLossesCount = attackerData.losses;
@@ -373,14 +374,7 @@ function messageHandler(data) {
         // SEND TO CHAT 
         irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLossesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
 
-        // FIXME qwrcrq23c2 and 123f1123 WRESTLED PorscheWIN
-        //qwrcrq23c2 WINS having 99% win-chance! -> 1W ( +1 ) / undefinedL BabyRage
-        //123f1123 -> 0W / NaNL ( +1 )
 
-        //TODO ATTACKER ALWAYS WINS
-
-        //  UPDATE DB
-        // TODO CONST -> LET
         let winnerId;
         let loserId;
 
@@ -388,12 +382,12 @@ function messageHandler(data) {
         if (whoWins.whoWins === 1) {
           winnerId = attackerData.id;
           loserId = defenderData.id;
-         
+
         } else {
           winnerId = defenderData.id;
           loserId = attackerData.id;
-          
-         
+
+
         }
         console.log('winnerId: ', winnerId);
         console.log('loserId: ', loserId);
@@ -418,7 +412,7 @@ function messageHandler(data) {
     return;
   }
 
-  if (msg.includes('!run')) {
+  if (msg.match(/! ?run/)) {
 
     fightRequests.forEach((offer, index) => {
       if (offer.defenderNick === nick) {
@@ -502,7 +496,6 @@ function messageHandler(data) {
 
 }
 
-//TODO SPACE IN COMANDS
 
 
 
