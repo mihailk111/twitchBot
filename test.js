@@ -12,20 +12,9 @@ const db = new sqlite3.Database('./bot.db', (err) => {
 
 
 
-let nick = "gergergwerger";
-let id = 1212121212121;
-
-const createUserSql = `insert into users VALUES ( ${id},1,1,1,1,"${nick}");`;
-
-db.run(createUserSql, (error) => {
-
- console.log('luky blyat');
-
-})
-
-
-
-
+    db.all('select * from users where id = ? or id = ?',[573150613,584170867],(err,data)=>{
+        console.log(data);
+    })
 
 
 

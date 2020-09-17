@@ -3,12 +3,14 @@ const ircClass = require('./twitch_irc');
 const sqlite3 = require('sqlite3').verbose();
 const chalk = require('chalk');
 const log = console.log;
-const childProcess = require('child_process');
 const speedTest = require('./speedTest.js');
+const {
+  message
+} = require('./speedTest.js');
 
 
 const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
-  console.log("DB -> OK");
+  console.log('DB OK');
 });
 //ergwergwegwer`
 
@@ -20,12 +22,12 @@ const channels = [ //CHANNELS
   // "gorc",
   // 'dota2ruhub',
   // 'singsing',
-  'icebergdoto',
-  'silvername', 
-  'just_ns',
-  "dota2mc_ru",
-  'daxak',
-  'rxnexus',
+  // 'icebergdoto',
+  // 'silvername', 
+  // 'just_ns',
+  // "dota2mc_ru",
+  // 'daxak',
+  // 'rxnexus',
   'azazin_kreet'
 ]
 const notificationsChannel = 'azazin_kreet';
@@ -33,7 +35,7 @@ const notificationsChannel = 'azazin_kreet';
 const fightRequests = [];
 
 
-	
+
 const socket = new net.Socket();
 socket.setEncoding('utf8');
 socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
@@ -50,9 +52,9 @@ const period = 30 * 60 * 1000; // 30 MINS
 
 
 
-const notifications = setInterval(()=>{
-  irc.send(notificationsChannel,`EVERYONE, YOU CAN -> !wrestle @<user> to offer a fight to someone; USE -> !gogym to WORKOUT; USE -> !mypower to show your muscular body to chat`)
-},period);
+const notifications = setInterval(() => {
+  irc.send(notificationsChannel, `EVERYONE, YOU CAN -> !wrestle @<user> to offer a fight to someone; USE -> !gogym to WORKOUT; USE -> !mypower to show your muscular body to chat`)
+}, period);
 
 
 
@@ -61,7 +63,7 @@ let buffer = '';
 
 socket.on('data', (data) => {
 
-  // console.log(`RAW ->  ${data}`);
+  // 
   // IF DATA ISNT ENDS WITH \R\N PUT IT IN BUFFER AND RETURN
   if (!data.endsWith('\r\n')) {
 
@@ -85,11 +87,11 @@ socket.on('data', (data) => {
 
   // SEPARATE MESSAGES AND HANDLE EACH MESSAGE
   function separateAndHandle(data) {
-    //console.log(data);
+    //
     data = data.split(/\r\n/);
     data.pop();
 
-    // console.dir(data);
+    // 
 
     //выполняем полукченные строки
     data.forEach((e) => {
@@ -119,37 +121,20 @@ function messageHandler(data) {
     id = irc.getId(data);
 
   } catch (error) {
+    console.log(data);
 
     if (/^PING/.test(data)) { //PING PONG answer
       irc.pong()
-      return;
+
     }
 
-    if (data.match(/CLEARCHAT/)) { //CLEARCHAT msg
-      console.log(chalk.inverse(data));
-      return;
-    }
-
-    if (data.match(/CLEARMSG/)) { //CLEARMSG msg
-      console.log(chalk.inverse(data));
-
-      return;
-    }
-    if (data.match(/USERNOTICE/)) { //USERNOTICE MSG
-      console.log(chalk.inverse(data));
-
-      return;
-    }
-
-    console.log(chalk.inverse(data));
-
-    return;
+    return; //QUITS MESSAGE FUNC
   }
-  
-console.log(irc.getFormattedOutput(channel,nick,msg));
- 
 
-//erhwerhwsrh
+  console.log(irc.getFormattedOutput(channel, nick, msg));
+
+
+  //erhwerhwsrh
   // MY POWER INFO
   if (msg.match(/!mypower/i)) {
 
@@ -158,14 +143,14 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
     db.get(getPowerSql, [id], (error, data) => {
       if (data) {
 
-        irc.send(channel, `${nick} has ${data.power} power , ${data.wins} wins and ${data.loses} losses in GYM FIGHTS`);
+        irc.send(channel, `${nick} has ${data.power} power , ${data.wins} wins and ${data.losses} losses in GYM FIGHTS`);
 
       } else {
         irc.send(channel, `${nick} has 0 power , 0 wins and 0 losses in GYM FIGHTS`);
 
         const createUserSql = `INSERT INTO users values (${id},1,0,0,0,"${nick}")`;
         db.run(createUserSql, () => {
-          console.log(chalk.red('[ LOG ] user created'));
+
         })
 
       }
@@ -215,7 +200,7 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
         db.run(createUserSql, (error) => {
           if (!error) {
-            console.log(chalk.red('[DB-INFO] -> ') + 'USER ' + id + ' CREATED');
+
           }
         })
 
@@ -262,7 +247,7 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
             db.run(createUserSql, (error) => {
               //USER CREATED 
-              console.log(chalk.red('[ LOG ] user created'));
+
               fight(attackerId, id, attackerNick, nick);
 
 
@@ -273,7 +258,7 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
         })
 
-        fightRequests.splice(index,1);
+        fightRequests.splice(index, 1);
         return; // foreach drop
       }
     })
@@ -282,18 +267,18 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
       const sum = power1 + power2;
 
-      console.log('POWER SUM -> '+sum);
+
 
       const user1chance = power1 / sum;
 
-      console.log('user1chance -> '+user1chance);
-  
+
+
       const user2chance = power2 / sum;
 
-      console.log('user1chance -> '+user2chance);
+
 
       const coinFlip = Math.random();
-  
+
       if (coinFlip < user1chance) {
         return {
           'whoWins': 1,
@@ -305,90 +290,125 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
           'chance': user2chance
         };
       }
-  
+
     }
 
     function fight(attackerId, defenderId, attackerNick, defenderNick) {
+      console.log('defenderId: ', defenderId);
+      console.log('attackerId: ', attackerId);
 
       const bothUsersSql = `SELECT * FROM users WHERE id = ? OR id = ?`;
 
       db.all(bothUsersSql, [attackerId, defenderId], (error, data) => {
-		const attackerData = data[0];
-		const defenderData = data[1];
-		
+
+        let attackerData;
+       
+        let defenderData;
+        
+
+        data.forEach((element,index)=>{
+          if (element.id == attackerId){
+            attackerData = element;
+          }else if (element.id == defenderId){
+            defenderData = element;
+          }
+        })
+        console.log(attackerData);
+        console.log(defenderData);
+        
+        console.log(data);
         const whoWins = coinFlip(attackerData.power, defenderData.power);
 
         // GET VARIABLES 
-		//TODO REWRITE PARSERS
-		
+
         let winnerNick;
-		let loserNick;
-		
-		if(whoWins.whoWins === 1){
-			winnerNick = attackerNick;
-			loserNick = defenderId;
-		}else{
-			winnerNick = defenderNick;
-			loserNick = winnerNick;
-		}
-		
-     
+
+        let loserNick;
+
+
+
+        if (whoWins.whoWins === 1) {
+          winnerNick = attackerNick;
+          loserNick = defenderNick;
+        } else {
+          winnerNick = defenderNick;
+          loserNick = attackerNick;
+        }
+        console.log('winnerNick: ', winnerNick);
+        console.log('loserNick: ', loserNick);
+
         const winnerChance = whoWins.chance * 100;
+        console.log('winnerChance: ', winnerChance);
 
 
         let winnerWinsCount;
-		let winnerLosesCount;
-		
-		let loserWinsCount;
+
+        let winnerLossesCount;
+
+        let loserWinsCount;
+
         let loserLossesCount;
-		
-		if (whoWins.whoWins === 1){
-			winnerWinsCount = attackerData.power;
-			winnerLosesCount = attackerData.loses; // TODO LOSES/ LOSSES IN DB ?
-			
-			loserWinsCount = defenderData.wins;
-			loserLossesCount = defenderData.loses;
-			
-		}else{
-			winnerWinsCount = defenderData.power;
-			winnerLosesCount = defenderData.loses; // TODO LOSES - LOSSES IN DB ?
-			
-			loserWinsCount = attackerData.wins;
-			loserLossesCount = attackerData.loses;
-		}
 
-       
+
+        if (whoWins.whoWins === 1) {
+          winnerWinsCount = attackerData.wins;
+          winnerLossesCount = attackerData.losses; // TODO LOSES/ LOSSES IN DB ?
+
+          loserWinsCount = defenderData.wins;
+          loserLossesCount = defenderData.losses;
+
+        } else {
+          winnerWinsCount = defenderData.wins;
+          winnerLossesCount = defenderData.losses; // TODO LOSES - LOSSES IN DB ?
+
+          loserWinsCount = attackerData.wins;
+          loserLossesCount = attackerData.losses;
+        }
+        console.log('winnerWinsCount: ', winnerWinsCount);
+        console.log('winnerLossesCount: ', winnerLossesCount);
+        console.log('loserWinsCount: ', loserWinsCount);
+        console.log('loserLossesCount: ', loserLossesCount);
+
+
         // SEND TO CHAT 
-        irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLosesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
+        irc.send(channel, `${attackerNick} and ${defenderNick} WRESTLED PorscheWIN ${winnerNick} WINS having ${Math.floor(winnerChance)}% win-chance! -> ${winnerWinsCount+1}W ( +1 ) / ${winnerLossesCount}L BabyRage ${loserNick} -> ${loserWinsCount}W / ${loserLossesCount+1}L ( +1 )`);
 
-// FIXME qwrcrq23c2 and 123f1123 WRESTLED PorscheWIN
-//qwrcrq23c2 WINS having 99% win-chance! -> 1W ( +1 ) / undefinedL BabyRage
-//123f1123 -> 0W / NaNL ( +1 )
+        // FIXME qwrcrq23c2 and 123f1123 WRESTLED PorscheWIN
+        //qwrcrq23c2 WINS having 99% win-chance! -> 1W ( +1 ) / undefinedL BabyRage
+        //123f1123 -> 0W / NaNL ( +1 )
 
-//TODO ATTACKER ALWAYS WINS
+        //TODO ATTACKER ALWAYS WINS
 
         //  UPDATE DB
-		// TODO CONST -> LET
-        let winnerId ;
-        let loserId ;
-		
-		if (whoWins.whoWins === 1){
-			winnerId = attackerData.id;
-			loserId = defenderData.id;
-		}else{
-			winnerId = defenderData.id;
-			loserId = attackerData.id;
-		}
-	
+        // TODO CONST -> LET
+        let winnerId;
+        let loserId;
+
+
+        if (whoWins.whoWins === 1) {
+          winnerId = attackerData.id;
+          loserId = defenderData.id;
+         
+        } else {
+          winnerId = defenderData.id;
+          loserId = attackerData.id;
+          
+         
+        }
+        console.log('winnerId: ', winnerId);
+        console.log('loserId: ', loserId);
+
         const updateWinnerSql = `UPDATE users SET wins = ${winnerWinsCount+1} WHERE id = ${winnerId}`;
-        const updateLoserSql = `UPDATE users SET loses = ${loserLossesCount+1} WHERE id = ${loserId}`;
+        console.log('updateWinnerSql: ', updateWinnerSql);
+        const updateLoserSql = `UPDATE users SET losses = ${loserLossesCount+1} WHERE id = ${loserId}`;
+        console.log('updateLoserSql: ', updateLoserSql);
 
         db.run(updateWinnerSql, () => {
-          console.log(chalk.red('[LOG] : winner stat updated'));
+
         })
 
         db.run(updateLoserSql, () => {
-          console.log(chalk.red('[LOG] : loser stat updated'));
+
         })
 
       })
@@ -398,23 +418,23 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
     return;
   }
 
-  if (msg.includes('!run')){
-    
-    fightRequests.forEach((offer,index)=>{
-      if (offer.defenderNick === nick){
+  if (msg.includes('!run')) {
 
-        irc.send(channel,`BibleThump ${nick} runs away scared of ${offer.attackerNick} body`)
+    fightRequests.forEach((offer, index) => {
+      if (offer.defenderNick === nick) {
 
-        fightRequests.splice(index,1);
+        irc.send(channel, `BibleThump ${nick} runs away scared of ${offer.attackerNick} body`)
+
+        fightRequests.splice(index, 1);
         return;
       }
     })
 
-   
+
     return;
   }
 
- 
+
 
 
 
@@ -447,7 +467,7 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
           const powerUpdate = `UPDATE users SET power = ${increasedPower} , lastgymtime = ${Date.now()} WHERE id = ${data.id}`;
 
           db.run(powerUpdate, () => {
-            console.log(chalk.red('[ LOG ] user power updated '));
+
           })
 
         } else {
@@ -465,11 +485,11 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
         //NO SUCH PLAYER
         irc.send(channel, `@${nick} you worked hard IN GYM, ${0 + powerIncrease} ( +${powerIncrease} ) muscle power !`);
-        
+
         const createUser = `INSERT INTO users VALUES(${id},${powerIncrease},0,0,${Date.now()}, "${nick}")`;
 
-        db.run(createUser,()=>{
-          console.log(chalk.red('[ LOG ] user created '));
+        db.run(createUser, () => {
+
         })
 
       }
@@ -488,7 +508,7 @@ console.log(irc.getFormattedOutput(channel,nick,msg));
 
 //CONNECTION
 socket.on('connect', () => {
-
+  console.log('connected');
 
   socket.write(irc.getConnectionMsg(), () => {
 
