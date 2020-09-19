@@ -4,9 +4,6 @@ const sqlite3 = require('sqlite3').verbose();
 const chalk = require('chalk');
 const log = console.log;
 const speedTest = require('./speedTest.js');
-const {
-  message
-} = require('./speedTest.js');
 
 
 const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
@@ -45,7 +42,7 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 
 // speedTest.start(socket); // SPEED TEST TO CONSOLE
 
-const irc = new ircClass('oauth:orcp6gjmq3xo63exwflhn2safhoyvv', "gymbot1", socket); //IRC CLASS
+const irc = new ircClass('oauth:2466gi4os0d28yyxec26wlughj49za', "gymbot_1", socket); //IRC CLASS
 
 
 const period = 1 * 60 * 1000; // 30 MINS 
