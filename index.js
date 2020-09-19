@@ -13,18 +13,6 @@ const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
 
 
 const channels = [ //CHANNELS 
-
-  // 'gaules',
-  // "esl_csgo",
-  // "gorc",
-  // 'dota2ruhub',
-  // 'singsing',
-  // 'icebergdoto',
-  // 'silvername', 
-  // 'just_ns',
-  // "dota2mc_ru",
-  // 'daxak',
-  // 'rxnexus',
   'azazin_kreet'
 ]
 const notificationsChannel = 'azazin_kreet';
@@ -243,12 +231,6 @@ function messageHandler(data) {
       if (offer.defenderNick === nick) {
         // DO FIGHT 
 
-        //  {
-        //   'attackerNick': nick,
-        //   'attackerId': id,
-        //   'defenderNick': defender,
-        // };
-
         const attackerNick = offer.attackerNick;
         const attackerId = offer.attackerId;
 
@@ -454,9 +436,7 @@ function messageHandler(data) {
 
   if (msg.match(/!gogym/)) {
 
-    // get power 
-    // get last workout
-    // if he can workout at this time 
+
 
     const gymRestTime = 30 * 60 * 1000; //ms
     const powerAndTime = `SELECT * FROM users WHERE id = ?`;
@@ -491,9 +471,6 @@ function messageHandler(data) {
           irc.send(channel, `@${nick}, buddy , rest at least ${Math.floor( timeLeft/1000/60) } minutes more`);
 
         }
-
-
-
 
       } else {
 
