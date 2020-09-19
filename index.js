@@ -45,16 +45,41 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 const irc = new ircClass('oauth:2466gi4os0d28yyxec26wlughj49za', "gymbot_1", socket); //IRC CLASS
 
 
-const period = 1 * 60 * 1000; // 30 MINS 
+const period = 2 * 60 * 1000; // 30 MINS 
 
 
 
 const notifications = setInterval(() => {
-  irc.send(notificationsChannel, `EVERYONE, you can !wrestle @<user> - to offer a fight to someone !gogym - to WORKOUT !mypower - to show your muscular body to chat`)
+
+  irc.send(notificationsChannel, `EVERYONE, you can !wrestle @<user> - to offer a fight to someone !gogym - to WORKOUT !mypower - to show your muscular body to chat`);
+
+  //TODO WHEN MORE THAN 3 USERS ENABLE LADDER NOTIFICATIONS
+
+  setTimeout(() => {
+
+    console.log('set rimeout ');
+    // select power and nick from users, descending order, top 3
+    const topThreeSql = `SELECT wins,losses,nick FROM users ORDER  BY power DESC LIMIT 3`;
+
+    db.all(topThreeSql, (error, data) => {
+
+      if (data.length > 2) {
+
+        const user1 = data[0];
+        const user2 = data[1];
+        const user3 = data[2];
+
+        irc.send(notificationsChannel, `Gym champions: ${user1.nick}: ${user1.wins}W / ${user1.losses}L ${user2.nick}: ${user2.wins}W / ${user2.losses}L ${user3.nick}: ${user3.wins}W / ${user3.losses}L `);
+
+      }
+
+    })
+
+  }, 1 * 60 * 1000);
+
 }, period);
 
 
-//TODO LADDER NOTIFICATION
 
 let buffer = '';
 
@@ -166,7 +191,7 @@ function messageHandler(data) {
 
       //DEFENDER NICK
       defender = msg.match(/! ?wrestle @(\w{3,})/i)['1'];
-      if (defender === nick){
+      if (defender === nick) {
         return;
       }
     } catch (error) {
