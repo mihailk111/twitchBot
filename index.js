@@ -45,15 +45,13 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 const irc = new ircClass('oauth:2466gi4os0d28yyxec26wlughj49za', "gymbot_1", socket); //IRC CLASS
 
 
-const period = 2 * 60 * 1000; // 30 MINS 
+const period = 30 * 60 * 1000; // 30 MINS 
 
 
 
 const notifications = setInterval(() => {
 
   irc.send(notificationsChannel, `EVERYONE, you can !wrestle @<user> - to offer a fight to someone !gogym - to WORKOUT !mypower - to show your muscular body to chat`);
-
-  //TODO WHEN MORE THAN 3 USERS ENABLE LADDER NOTIFICATIONS
 
   setTimeout(() => {
 
@@ -75,7 +73,7 @@ const notifications = setInterval(() => {
 
     })
 
-  }, 1 * 60 * 1000);
+  }, 15 * 60 * 1000);
 
 }, period);
 
