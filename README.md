@@ -1,0 +1,4 @@
+# twitchBot
+
+
+TWITCH CHAT GAME 
