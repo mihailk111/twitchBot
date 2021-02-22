@@ -13,9 +13,9 @@ const db = new sqlite3.Database('./bot.db', () => { //DB CONNECTION
 
 
 const channels = [ //CHANNELS 
-  'azazin_kreet'
+  'testchannel'
 ]
-const notificationsChannel = 'azazin_kreet';
+const notificationsChannel = 'testchannel';
 
 const fightRequests = [];
 
@@ -30,7 +30,7 @@ socket.connect(6667, 'irc.chat.twitch.tv'); //CONNECTION
 
 // speedTest.start(socket); // SPEED TEST TO CONSOLE
 
-const irc = new ircClass('oauth:2466gi4os0d28yyxec26wlughj49za', "gymbot_1", socket); //IRC CLASS
+const irc = new ircClass('oauth:blablabla', "bla_bot", socket); //IRC CLASS
 
 
 const period = 30 * 60 * 1000; // 30 MINS 
